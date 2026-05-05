@@ -1,18 +1,54 @@
-# YAML TRANSLATOR
-You can easily translate your YAML files to the target language in seconds.
-Placeholders like %%, {}, <> will not be translated. (example: %placeholder% will not be translated)
+# yaml-translator
 
-## USAGE & EXAMPLE
-- Usage: python translate_yaml.py -i INPUTFILENAME.YML -o OUTPUTFILENAME.YML -s SOURCELANGUAGE -t TARGETLANGUAGE -w WORKERTHREADS
-- Example: python translate_yaml.py -i input.yml -o output.yml -s en -t tr -w 10
-- Put the input file to the directory and use the command in terminal.
+A small Python CLI for translating string values inside YAML files
+between languages. It preserves structure, comments and placeholders
+like `{name}`, `%player%` and `<arg>`, and runs translations in parallel.
 
-## SETTINGS
-Translator
-- If you want to use different translator type, you can change it in the settings.yml
-- Some translators may require api key.
+## Features
 
-Supported Translators:
+- Translates only string values, leaves keys and structure untouched
+- Skips placeholders (`{...}`, `%...%`, `<...>`) so things like
+  `%player%` come out as `%player%`
+- Protected-keys list — never translate values under specific keys
+- Multi-threaded translation
+- 10 translator backends
+
+## Installation
+
+```
+pip install -r requirements.txt
+```
+
+## Usage
+
+```
+python translate_yaml.py -i INPUT.yml -o OUTPUT.yml -s SRC -t DST -w N
+```
+
+Example: translate `input.yml` from English to Turkish with 10 workers:
+
+```
+python translate_yaml.py -i input.yml -o output.yml -s en -t tr -w 10
+```
+
+Arguments:
+
+- `-i` — input YAML file
+- `-o` — output YAML file
+- `-s` — source language code (e.g. `en`, `tr`, `ko`)
+- `-t` — target language code
+- `-w` — worker threads (controls request rate)
+
+## Configuration
+
+`settings.yml` controls:
+
+- `translator` — which backend to use
+- `api_key` — required by some backends
+- `protected_keys` — list of YAML keys whose values should not be translated
+
+## Supported Translators
+
 - GoogleTranslator
 - ChatGptTranslator
 - MicrosoftTranslator
@@ -24,15 +60,5 @@ Supported Translators:
 - DeeplTranslator
 - QcriTranslator
 
-Protected Keys
-- If you don't want to translate some keys' values, add the key name to the protected keys list in the settings.yml
-
-## COMMAND INFORMATION
-- INPUTFILENAME.YML example: input.yml
-- OUTPUTFILENAME.YML example: output.yml
-- SOURCELANGUAGE example: en for english, ko for korean
-- TARGETLANGUAGE example: en for english, ko for korean
-- WORKERTHREADS example: 5 (5 message will be translated every second)
-
-## RATE LIMIT
-You are allowed to make 5 requests per secondand up to 200k requests per day.
+Note: each backend has its own request limits. Tune the `-w` worker
+count to stay under them.
